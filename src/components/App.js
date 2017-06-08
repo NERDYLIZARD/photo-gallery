@@ -12,6 +12,8 @@ class App extends React.Component {
         {/*header*/}
         <IndexLink to="/">Home</IndexLink>
         {' | '}
+        <Link to="/album">Album</Link>
+        {' | '}
         <Link to="/about">About</Link>
         <br/>
         {this.props.children}
