@@ -96,6 +96,7 @@ class Album extends React.Component{
         });
       }.bind(this),
       error: function(xhr, status, err) {
+        /* eslint-disable no-console */
         console.error(status, err.toString());
       }.bind(this)
     });
