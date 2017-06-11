@@ -21,6 +21,7 @@ class Album extends React.Component{
     this.openLightbox = this.openLightbox.bind(this);
     this.gotoNext = this.gotoNext.bind(this);
     this.gotoPrevious = this.gotoPrevious.bind(this);
+    this.updateCaption = this.updateCaption.bind(this);
   }
   componentDidMount() {
     this.loadMorePhotos();
@@ -106,12 +107,14 @@ class Album extends React.Component{
       currentImage: this.state.currentImage + 1,
     });
   }
+  updateCaption(caption) {
+    console.log(caption);
+  }
   renderGallery(){
     return(
       <Measure whitelist={['width']}>
         {
           ({ width }) => {
-          console.log(width);
             let cols = 1;
             if (width >= 480){
               cols = 2;
@@ -138,12 +141,13 @@ class Album extends React.Component{
           <Lightbox
             theme={{container: { background: 'rgba(0, 0, 0, 0.85)' }}}
             images={this.state.photos}
-            backdropClosesModal={true}
+            backdropClosesModal={false}
             onClose={this.closeLightbox}
             onClickPrev={this.gotoPrevious}
             onClickNext={this.gotoNext}
             currentImage={this.state.currentImage}
             isOpen={this.state.lightboxIsOpen}
+            onUpdateCaption={this.updateCaption}
             width={1600}
           />
           {!this.state.loadedAll && <div className="loading-msg" id="msg-loading-more">Loading</div>}
