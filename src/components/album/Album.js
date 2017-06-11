@@ -14,19 +14,38 @@ import '../../styles/album.scss';
 class Album extends React.Component{
   constructor(){
     super();
-    this.state = {photos:null, pageNum:1, totalPages:1, loadedAll: false, currentImage:0};
-    this.handleScroll = this.handleScroll.bind(this);
-    this.loadMorePhotos = this.loadMorePhotos.bind(this);
+    this.state = {currentImage:0, loadedAll: false, photos:null, pageNum:1, totalPages:1 };
     this.closeLightbox = this.closeLightbox.bind(this);
-    this.openLightbox = this.openLightbox.bind(this);
     this.gotoNext = this.gotoNext.bind(this);
     this.gotoPrevious = this.gotoPrevious.bind(this);
+    this.handleScroll = this.handleScroll.bind(this);
+    this.loadMorePhotos = this.loadMorePhotos.bind(this);
+    this.openLightbox = this.openLightbox.bind(this);
     this.updateCaption = this.updateCaption.bind(this);
   }
   componentDidMount() {
     this.loadMorePhotos();
     this.loadMorePhotos = _.debounce(this.loadMorePhotos, 200);
     window.addEventListener('scroll', this.handleScroll);
+  }
+  closeLightbox(){
+    this.setState({
+      currentImage: 0,
+      lightboxIsOpen: false,
+    });
+  }
+  gotoPrevious(){
+    this.setState({
+      currentImage: this.state.currentImage - 1,
+    });
+  }
+  gotoNext(){
+    if(this.state.photos.length - 2 === this.state.currentImage){
+      this.loadMorePhotos();
+    }
+    this.setState({
+      currentImage: this.state.currentImage + 1,
+    });
   }
   handleScroll(){
     let scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
@@ -39,7 +58,7 @@ class Album extends React.Component{
       e.preventDefault();
     }
     if (this.state.pageNum > this.state.totalPages){
-      this.setState({loadedAll: true});
+      this.setState({ loadedAll: true });
       return;
     }
     $.ajax({
@@ -88,25 +107,6 @@ class Album extends React.Component{
       lightboxIsOpen: true
     });
   }
-  closeLightbox(){
-    this.setState({
-      currentImage: 0,
-      lightboxIsOpen: false,
-    });
-  }
-  gotoPrevious(){
-    this.setState({
-      currentImage: this.state.currentImage - 1,
-    });
-  }
-  gotoNext(){
-    if(this.state.photos.length - 2 === this.state.currentImage){
-      this.loadMorePhotos();
-    }
-    this.setState({
-      currentImage: this.state.currentImage + 1,
-    });
-  }
   updateCaption(caption) {
     console.log(caption);
   }
@@ -139,15 +139,15 @@ class Album extends React.Component{
           <h1>Album</h1>
           {this.renderGallery()}
           <Lightbox
-            theme={{container: { background: 'rgba(0, 0, 0, 0.85)' }}}
-            images={this.state.photos}
             backdropClosesModal={false}
+            currentImage={this.state.currentImage}
+            images={this.state.photos}
+            isOpen={this.state.lightboxIsOpen}
             onClose={this.closeLightbox}
             onClickPrev={this.gotoPrevious}
             onClickNext={this.gotoNext}
-            currentImage={this.state.currentImage}
-            isOpen={this.state.lightboxIsOpen}
             onUpdateCaption={this.updateCaption}
+            theme={{container: { background: 'rgba(0, 0, 0, 0.85)' }}}
             width={1600}
           />
           {!this.state.loadedAll && <div className="loading-msg" id="msg-loading-more">Loading</div>}
