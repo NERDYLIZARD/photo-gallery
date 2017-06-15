@@ -6,6 +6,7 @@ import React, {Component} from 'react';
 import Proptypes from 'prop-types';
 import Dropzone from 'react-dropzone';
 import { Grid, Row, Col, Image, ButtonToolbar, Button } from 'react-bootstrap';
+import axios from 'axios';
 
 export default class AlbumForm extends Component {
   constructor(props, context) {
@@ -23,9 +24,14 @@ export default class AlbumForm extends Component {
     });
   }
   saveAlbum() {
-    console.log(this.state.uploadedImages);
+    // formData() for multipart data
+    const formData = new FormData();
+    formData.append('name', 'abc');
+    this.state.uploadedImages.map(image =>
+      formData.append('images', image)
+    );
+    axios.post('/api/albums/create', formData);
   }
-
   renderPreviews() {
     return (
       <Row>

@@ -2,10 +2,10 @@
  * Created on 14-Jun-17.
  */
 'use strict';
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-var schema = new Schema({
+const schema = new Schema({
   _id : { type: Schema.Types.ObjectId, required: true },
   name: { type: String, required: true },
   _photos: [{
