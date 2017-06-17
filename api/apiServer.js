@@ -10,9 +10,10 @@ const fs = require('fs');
 const multer = require('multer');
 const mongoose = require('mongoose');
 const path = require('path');
+const sharp = require('sharp');
 
 const app = express();
-const uploadDirectory = path.join(__dirname, 'upload');
+const albumsDirectory = path.join(__dirname, 'upload', 'albums');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -26,7 +27,7 @@ const upload = multer();
 app.post('/albums/create', upload.array('images'), (req, res) => {
 
   const _albumId = mongoose.Types.ObjectId();
-  const albumDirectory = `${uploadDirectory}/${_albumId}`;
+  const albumDirectory = `${albumsDirectory}/${_albumId}`;
   fs.mkdirSync(`${albumDirectory}`);
 
   req.files.map(image => {
@@ -36,6 +37,15 @@ app.post('/albums/create', upload.array('images'), (req, res) => {
     const photoDirectory = `${albumDirectory}/${_photoId}`;
     fs.mkdirSync(`${photoDirectory}`);
     fs.writeFileSync(`${photoDirectory}/original.${ext}`, data);
+
+    const widths = ['1280', '1024', '800'];
+    widths.map(width => {
+      sharp(`${photoDirectory}/original.${ext}`)
+        .resize(+width)
+        .toFile(`${photoDirectory}/${width}.${ext}`)
+        .catch(err => res.json(new Error(`failed to resize to the width of ${width}`)));
+    });
+
   });
 });
 
