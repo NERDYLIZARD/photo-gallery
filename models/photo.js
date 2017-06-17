@@ -9,7 +9,7 @@ const schema = new Schema({
   _id : { type: Schema.Types.ObjectId, required: true },
   caption: { type: String, default: '' },
   url: { type: String, required: true },
-  album: { type: Schema.Types.ObjectId, ref: 'Album' },
+  _album: { type: Schema.Types.ObjectId, ref: 'Album' },
   createdAt: { type: Date, default: Date.now },
   modifiedAt: { type: Date, default: Date.now }
 });

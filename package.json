@@ -10,7 +10,7 @@
     "remove-demo": "babel-node tools/removeDemo.js",
     "start-message": "babel-node tools/startMessage.js",
     "prestart": "npm-run-all --parallel start-message",
-    "start": "npm-run-all --parallel open:src open:api lint:watch",
+    "start": "npm-run-all --parallel open:src lint:watch",
     "open:api": "nodemon api/apiServer.js",
     "open:api:dist": "node api/apiServer.js",
     "open:src": "babel-node tools/server.js development",
@@ -31,6 +31,7 @@
   },
   "author": "hoppy",
   "dependencies": {
+    "async": "2.4.1",
     "axios": "0.16.2",
     "body-parser": "1.17.2",
     "bootstrap": "3.3.7",
