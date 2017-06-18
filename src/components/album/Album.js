@@ -100,6 +100,10 @@ class Album extends React.Component{
         console.error(status, err.toString());
       }.bind(this)
     });
+
+    // API request
+
+
   }
   openLightbox(index, event){
     event.preventDefault();
@@ -138,6 +142,7 @@ class Album extends React.Component{
       return(
         <div className="Album">
           <h1>Album</h1>
+          <img src={"/api/albums/59466c096907ec1fc02a6e36/59466c096907ec1fc02a6e3c?size=1280"} alt="abc"/>
           {this.renderGallery()}
           <Lightbox
             backdropClosesModal={false}

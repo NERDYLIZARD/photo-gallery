@@ -8,6 +8,8 @@ const Schema = mongoose.Schema;
 const schema = new Schema({
   _id : { type: Schema.Types.ObjectId, required: true },
   caption: { type: String, default: '' },
+  width: { type: Number, required: true },
+  height: { type: Number, required: true },
   url: { type: String, required: true },
   _album: { type: Schema.Types.ObjectId, ref: 'Album' },
   createdAt: { type: Date, default: Date.now },

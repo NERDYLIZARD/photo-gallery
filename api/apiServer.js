@@ -12,6 +12,7 @@ const multer = require('multer');
 const mongoose = require('mongoose');
 const path = require('path');
 const sharp = require('sharp');
+const sizeOf = require('image-size');
 
 const app = express();
 const albumsDirectory = path.join(__dirname, 'upload', 'albums');
@@ -26,6 +27,36 @@ app.use(cookieParser());
 app.get('/', (req, res) => {
   res.send('test proxy');
 });
+
+app.get('/albums/:id', (req, res) => {
+  Album.findById(req.params.id)
+    .then(album => res.status(200).json({
+      message: `successfully fetched album: ${album.name}`,
+      album
+    }))
+    .catch(err => res.status(500).json({
+      title: 'An error occured',
+      error: err
+    }));
+});
+
+app.get('/albums/:id/:photoId', (req, res) => {
+
+  const albumId = req.params.id;
+  const photoId = req.params.photoId;
+  const size = req.query.size;
+ // size = [1280, 1024, 800, 500, 240]
+  fs.readFile(`${albumsDirectory}/${albumId}/${photoId}/${size}.jpg`, (err, image) => {
+    if (err)
+      return res.status(500).json({
+        title: 'Failed to load image',
+        error: err
+    });
+    res.send(image);
+  });
+
+});
+
 
 const upload = multer();
 app.post('/albums/create', upload.array('images'), (req, res) => {
@@ -56,31 +87,42 @@ app.post('/albums/create', upload.array('images'), (req, res) => {
         fs.writeFile(`${photoDirectory}/original.${ext}`, data, err => {
           if (err) throw err;
 
-          // resize
-          const resize = width => {
-            return new Promise(() =>
-              sharp(`${photoDirectory}/original.${ext}`)
-                .resize(+width)
-                .toFile(`${photoDirectory}/${width}.${ext}`)
-            );
-          }
-          Promise.all([
-            resize('1280'),
-            resize('1024'),
-            resize('800'),
-          ])
-            .then(() => console.log('all done'))
-            .catch(err => { throw error });
-
-          const photo = new Photo({
-            _id: _photoId,
-            _album: _albumId,
-            url: path.join('upload/albums', _albumId.toString(), _photoId.toString())
-          });
-          photo.save((err, photo) => {
+          // get size
+          sizeOf(`${photoDirectory}/original.${ext}`, (err, dimensions) => {
             if (err) throw err;
-            album._photos.push(photo._id);
-            callback();
+            const width = dimensions.width;
+            const height = dimensions.height;
+
+            // resize
+            const resize = width => {
+              return new Promise(() =>
+                sharp(`${photoDirectory}/original.${ext}`)
+                  .resize(+width)
+                  .toFile(`${photoDirectory}/${width}.jpg`)
+              );
+            }
+            Promise.all([
+              resize('1280'),
+              resize('1024'),
+              resize('800'),
+              resize('500'),
+              resize('240'),
+            ])
+              .then(() => console.log('all done'))
+              .catch(err => { throw error });
+
+            const photo = new Photo({
+              _id: _photoId,
+              _album: _albumId,
+              width,
+              height,
+              url: `/albums/${_albumId.toString()}/${_photoId.toString()}`,
+            });
+            photo.save((err, photo) => {
+              if (err) throw err;
+              album._photos.push(photo._id);
+              callback();
+            });
           });
         });
       });

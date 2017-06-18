@@ -38,6 +38,7 @@
     "cookie-parser": "1.4.3",
     "express": "4.15.3",
     "http-proxy": "1.16.2",
+    "image-size": "0.5.5",
     "lodash": "4.17.4",
     "mongoose": "4.10.5",
     "morgan": "1.8.2",
