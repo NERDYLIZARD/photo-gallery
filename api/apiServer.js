@@ -25,11 +25,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.get('/albums/:id', (req, res) => {
-  Album.findById(req.params.id, (err, album) => {
-    if (err)
+  Album.findById(req.params.id, (error, album) => {
+    if (error)
       return res.status(500).json({
         title: 'An error occurred',
-        error: err
+        error
       });
 
     // pagination
@@ -38,12 +38,12 @@ app.get('/albums/:id', (req, res) => {
     Photo.find({ _album: req.params.id })
       .skip((pageNum-1) * perPage)
       .limit(perPage)
-      .exec((err, photos) => {
+      .exec((error, photos) => {
 
-        if (err)
+        if (error)
           return res.status(500).json({
             title: 'An error occurred',
-            error: err
+            error
           });
 
         res.status(200).json({
@@ -68,11 +68,11 @@ app.get('/albums/:id/:photoId', (req, res) => {
   const photoId = req.params.photoId;
   const size = req.query.size;
  // size = [1280, 1024, 800, 500, 240]
-  fs.readFile(`${albumsDirectory}/${albumId}/${photoId}/${size}.jpg`, (err, image) => {
-    if (err)
+  fs.readFile(`${albumsDirectory}/${albumId}/${photoId}/${size}.jpg`, (error, image) => {
+    if (error)
       return res.status(500).json({
         title: 'An error occurred',
-        error: err
+        error
     });
     res.send(image);
   });
@@ -87,8 +87,8 @@ app.post('/albums/create', upload.array('images'), (req, res) => {
   const albumDirectory = `${albumsDirectory}/${_albumId}`;
 
   // albums
-  fs.mkdir(`${albumDirectory}`, (err) => {
-    if (err) throw err;
+  fs.mkdir(`${albumDirectory}`, error => {
+    if (error) throw error;
     // create album model
     const album = new Album({
       _id: _albumId,
@@ -104,14 +104,14 @@ app.post('/albums/create', upload.array('images'), (req, res) => {
       const photoDirectory = `${albumDirectory}/${_photoId}`;
 
       // each photo's directory
-      fs.mkdir(`${photoDirectory}`, err => {
-        if (err) throw err;
-        fs.writeFile(`${photoDirectory}/original.${ext}`, data, err => {
-          if (err) throw err;
+      fs.mkdir(`${photoDirectory}`, error => {
+        if (error) throw error;
+        fs.writeFile(`${photoDirectory}/original.${ext}`, data, error => {
+          if (error) throw error;
 
           // get size
-          sizeOf(`${photoDirectory}/original.${ext}`, (err, dimensions) => {
-            if (err) throw err;
+          sizeOf(`${photoDirectory}/original.${ext}`, (error, dimensions) => {
+            if (error) throw error;
             const originalWidth = dimensions.width;
             const originalHeight = dimensions.height;
 
@@ -131,7 +131,7 @@ app.post('/albums/create', upload.array('images'), (req, res) => {
               resize('240'),
             ])
               .then(() => console.log('all done'))
-              .catch(err => { throw err });
+              .catch(error => { throw error });
 
             const photo = new Photo({
               _id: _photoId,
@@ -140,18 +140,18 @@ app.post('/albums/create', upload.array('images'), (req, res) => {
               height: originalHeight,
               url: `/albums/${_albumId.toString()}/${_photoId.toString()}`,
             });
-            photo.save((err, photo) => {
-              if (err) throw err;
+            photo.save((error, photo) => {
+              if (error) throw error;
               album._photos.push(photo._id);
               callback();
             });
           });
         });
       });
-    }, (err) => {
-      if (err) throw err;
-      album.save((err, album) => {
-        if (err) throw err;
+    }, (error) => {
+      if (error) throw error;
+      album.save((error, album) => {
+        if (error) throw error;
         res.status(201).json({
           message: `successfully created album ${album.name}`,
           album
@@ -163,7 +163,7 @@ app.post('/albums/create', upload.array('images'), (req, res) => {
 });
 
 const port = process.env.PORT || 3001;
-app.listen(port, err => {
-  if (err) return console.error(err);
+app.listen(port, error => {
+  if (error) return console.error(error);
   console.log(chalkSuccess(`\nAPI server listening on port: ${port}`));
 });
