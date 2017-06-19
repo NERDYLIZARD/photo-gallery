@@ -62,7 +62,7 @@ class Album extends React.Component{
       return;
     }
     // API request
-    axios.get('/api/albums/59466c096907ec1fc02a6e36')
+    axios.get(`/api/albums/59466c096907ec1fc02a6e36?perPage=5&pageNum=${this.state.pageNum}`)
       .then(response => {
         let photos = [];
         response.data.album._photos.forEach(photo => {
@@ -89,8 +89,8 @@ class Album extends React.Component{
         });
         this.setState({
           photos: this.state.photos ? this.state.photos.concat(photos) : photos,
-          // pageNum: this.state.pageNum + 1,
-          // totalPages: data.ablum.pages
+          pageNum: this.state.pageNum + 1,
+          totalPages: response.data.album.pages
         });
       })
       .catch(err => console.error(err));

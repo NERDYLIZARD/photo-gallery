@@ -24,22 +24,43 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.get('/', (req, res) => {
-  res.send('test proxy');
+app.get('/albums/:id', (req, res) => {
+  Album.findById(req.params.id, (err, album) => {
+    if (err)
+      return res.status(500).json({
+        title: 'An error occurred',
+        error: err
+      });
+
+    // pagination
+    const pageNum = +req.query.pageNum;
+    const perPage = +req.query.perPage;
+    Photo.find({ _album: req.params.id })
+      .skip((pageNum-1) * perPage)
+      .limit(perPage)
+      .exec((err, photos) => {
+
+        if (err)
+          return res.status(500).json({
+            title: 'An error occurred',
+            error: err
+          });
+
+        res.status(200).json({
+          message: `successfully fetched photos from album: ${album.name}`,
+          album:
+            Object.assign({}, album._doc, {
+              pages: Math.ceil(album._photos.length/perPage),
+              totalPhotos: album._photos.length,
+              _photos: photos,
+              pageNum,
+              perPage
+            })
+        });
+      });
+  });
 });
 
-app.get('/albums/:id', (req, res) => {
-  Album.findById(req.params.id)
-    .populate('_photos')
-    .then(album => res.status(200).json({
-      message: `successfully fetched album: ${album.name}`,
-      album
-    }))
-    .catch(err => res.status(500).json({
-      title: 'An error occurred',
-      error: err
-    }));
-});
 
 app.get('/albums/:id/:photoId', (req, res) => {
 
@@ -139,7 +160,6 @@ app.post('/albums/create', upload.array('images'), (req, res) => {
     });
 
   });
-
 });
 
 const port = process.env.PORT || 3001;
