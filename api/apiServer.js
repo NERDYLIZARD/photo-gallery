@@ -112,14 +112,14 @@ app.post('/albums/create', upload.array('images'), (req, res) => {
           // get size
           sizeOf(`${photoDirectory}/original.${ext}`, (err, dimensions) => {
             if (err) throw err;
-            const width = dimensions.width;
-            const height = dimensions.height;
+            const originalWidth = dimensions.width;
+            const originalHeight = dimensions.height;
 
             // resize
             const resize = width => {
               return new Promise(() =>
                 sharp(`${photoDirectory}/original.${ext}`)
-                  .resize(+width)
+                  .resize(width >= originalWidth ?  originalWidth : +width)
                   .toFile(`${photoDirectory}/${width}.jpg`)
               );
             }
@@ -131,13 +131,13 @@ app.post('/albums/create', upload.array('images'), (req, res) => {
               resize('240'),
             ])
               .then(() => console.log('all done'))
-              .catch(err => { throw error });
+              .catch(err => { throw err });
 
             const photo = new Photo({
               _id: _photoId,
               _album: _albumId,
-              width,
-              height,
+              width: originalWidth,
+              height: originalHeight,
               url: `/albums/${_albumId.toString()}/${_photoId.toString()}`,
             });
             photo.save((err, photo) => {
