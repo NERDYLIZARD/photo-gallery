@@ -30,12 +30,13 @@ app.get('/', (req, res) => {
 
 app.get('/albums/:id', (req, res) => {
   Album.findById(req.params.id)
+    .populate('_photos')
     .then(album => res.status(200).json({
       message: `successfully fetched album: ${album.name}`,
       album
     }))
     .catch(err => res.status(500).json({
-      title: 'An error occured',
+      title: 'An error occurred',
       error: err
     }));
 });
@@ -49,7 +50,7 @@ app.get('/albums/:id/:photoId', (req, res) => {
   fs.readFile(`${albumsDirectory}/${albumId}/${photoId}/${size}.jpg`, (err, image) => {
     if (err)
       return res.status(500).json({
-        title: 'Failed to load image',
+        title: 'An error occurred',
         error: err
     });
     res.send(image);
@@ -130,7 +131,10 @@ app.post('/albums/create', upload.array('images'), (req, res) => {
       if (err) throw err;
       album.save((err, album) => {
         if (err) throw err;
-        res.json({});
+        res.status(201).json({
+          message: `successfully created album ${album.name}`,
+          album
+        });
       });
     });
 

@@ -2,12 +2,12 @@
  * Created on 07-Jun-17.
  */
 'use strict';
-import React from 'react';
-import Gallery from 'react-photo-gallery';
-import $ from 'jquery';
 import _ from 'lodash';
-import Measure from 'react-measure';
+import axios from 'axios';
+import Gallery from 'react-photo-gallery';
 import Lightbox from 'react-images';
+import Measure from 'react-measure';
+import React from 'react';
 
 import '../../styles/album.scss';
 
@@ -53,36 +53,34 @@ class Album extends React.Component{
       this.loadMorePhotos();
     }
   }
-  loadMorePhotos(e){
-    if (e){
+  loadMorePhotos(e) {
+    if (e) {
       e.preventDefault();
     }
-    if (this.state.pageNum > this.state.totalPages){
-      this.setState({ loadedAll: true });
+    if (this.state.pageNum > this.state.totalPages) {
+      this.setState({loadedAll: true});
       return;
     }
-    $.ajax({
-      url: 'https://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=372ef3a005d9b9df062b8240c326254d&photoset_id=72157680705961676&user_id=57933175@N08&format=json&per_page=21&page='+this.state.pageNum+'&extras=url_m,url_c,url_l,url_h,url_o',
-      dataType: 'jsonp',
-      jsonpCallback: 'jsonFlickrApi',
-      cache: false,
-      success: function(data) {
+    // API request
+    axios.get('/api/albums/59466c096907ec1fc02a6e36')
+      .then(response => {
         let photos = [];
-        data.photoset.photo.forEach(function(obj){
-          let aspectRatio = parseFloat(obj.width_o / obj.height_o);
+        response.data.album._photos.forEach(photo => {
           photos.push({
-            src: (aspectRatio >= 3) ? obj.url_c : obj.url_m,
-            width: parseInt(obj.width_o),
-            height: parseInt(obj.height_o),
-            caption: obj.title,
-            alt: obj.title,
-            srcset:[
-              obj.url_m+' '+obj.width_m+'w',
-              obj.url_c+' '+obj.width_c+'w',
-              obj.url_l+' '+obj.width_l+'w',
-              obj.url_h+' '+obj.width_h+'w'
+            src: `/api${photo.url}?size=500`,
+            width: parseInt(photo.width),
+            height: parseInt(photo.height),
+            caption: photo.caption,
+            alt: photo._id,
+            srcset: [
+              // size = [1280, 1024, 800, 500, 240]
+              `/api${photo.url}?size=240 240w`,
+              `/api${photo.url}?size=500 500w`,
+              `/api${photo.url}?size=800 800w`,
+              `/api${photo.url}?size=1024 1024w`,
+              `/api${photo.url}?size=1280 1280w`,
             ],
-            sizes:[
+            sizes: [
               '(min-width: 480px) 50vw',
               '(min-width: 1024px) 33.3vw',
               '100vw'
@@ -91,19 +89,11 @@ class Album extends React.Component{
         });
         this.setState({
           photos: this.state.photos ? this.state.photos.concat(photos) : photos,
-          pageNum: this.state.pageNum + 1,
-          totalPages: data.photoset.pages
+          // pageNum: this.state.pageNum + 1,
+          // totalPages: data.ablum.pages
         });
-      }.bind(this),
-      error: function(xhr, status, err) {
-        /* eslint-disable no-console */
-        console.error(status, err.toString());
-      }.bind(this)
-    });
-
-    // API request
-
-
+      })
+      .catch(err => console.error(err));
   }
   openLightbox(index, event){
     event.preventDefault();
@@ -142,7 +132,6 @@ class Album extends React.Component{
       return(
         <div className="Album">
           <h1>Album</h1>
-          <img src={"/api/albums/59466c096907ec1fc02a6e36/59466c096907ec1fc02a6e3c?size=1280"} alt="abc"/>
           {this.renderGallery()}
           <Lightbox
             backdropClosesModal={false}
