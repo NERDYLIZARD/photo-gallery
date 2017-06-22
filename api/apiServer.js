@@ -3,20 +3,24 @@
  */
 'use strict';
 const async = require('async');
+const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const chalkSuccess = require('chalk').green;
 const express = require('express');
-const fs = require('fs');
+const fs = require('fs-extra');
 const multer = require('multer');
 const mongoose = require('mongoose');
 const path = require('path');
 const sharp = require('sharp');
 const sizeOf = require('image-size');
 
+mongoose.connect("localhost:27017/photo-gallery");
+Promise.promisifyAll(mongoose);
+
 const app = express();
 const albumsDirectory = path.join(__dirname, 'upload', 'albums');
-mongoose.connect("localhost:27017/photo-gallery");
+
 const Album = require('../models/album');
 const Photo = require('../models/photo');
 
@@ -31,7 +35,6 @@ app.get('/albums/:id', (req, res) => {
         title: 'An error occurred',
         error
       });
-
     // pagination
     const pageNum = +req.query.pageNum;
     const perPage = +req.query.perPage;
@@ -76,7 +79,6 @@ app.get('/albums/:id/:photoId', (req, res) => {
     });
     res.send(image);
   });
-
 });
 
 
@@ -85,54 +87,42 @@ app.post('/albums/create', upload.array('images'), (req, res) => {
 
   const _albumId = mongoose.Types.ObjectId();
   const albumDirectory = `${albumsDirectory}/${_albumId}`;
-
-  // albums
-  fs.mkdir(`${albumDirectory}`, error => {
-    if (error) throw error;
-    // create album model
-    const album = new Album({
-      _id: _albumId,
-      name: _albumId.toString()
-    });
-
-    // each photo
-    // parallel each photo then call back to save album
-    async.each(req.files, (image, callback) => {
+  const album = new Album({
+    _id: _albumId,
+    name: _albumId.toString()
+  });
+  // create album directory
+  fs.ensureDir(albumDirectory).then(() => {
+    return Promise.map(req.files, image => {
       const _photoId = mongoose.Types.ObjectId();
       const ext = image.mimetype.split('/').pop();
       const data = image.buffer;
       const photoDirectory = `${albumDirectory}/${_photoId}`;
 
-      // each photo's directory
-      fs.mkdir(`${photoDirectory}`, error => {
-        if (error) throw error;
-        fs.writeFile(`${photoDirectory}/original.${ext}`, data, error => {
-          if (error) throw error;
-
-          // get size
-          sizeOf(`${photoDirectory}/original.${ext}`, (error, dimensions) => {
-            if (error) throw error;
-            const originalWidth = dimensions.width;
-            const originalHeight = dimensions.height;
-
-            // resize
-            const resize = width => {
-              return new Promise(() =>
+      // create photo directories
+      return new Promise((resolve, reject) => {
+        fs.ensureDir(photoDirectory)
+          .then(() => fs.outputFile(`${photoDirectory}/original.${ext}`, data))
+          .then(() => sizeOf(`${photoDirectory}/original.${ext}`))
+          // resize the photos
+          .then(({ width: originalWidth, height: originalHeight }) => {
+            const width = ['1280', '1024', '800', '500', '240'];
+            return Promise.map(width, width =>
+              new Promise((resolve, reject) =>
                 sharp(`${photoDirectory}/original.${ext}`)
                   .resize(width >= originalWidth ?  originalWidth : +width)
                   .toFile(`${photoDirectory}/${width}.jpg`)
-              );
-            }
-            Promise.all([
-              resize('1280'),
-              resize('1024'),
-              resize('800'),
-              resize('500'),
-              resize('240'),
-            ])
-              .then(() => console.log('all done'))
-              .catch(error => { throw error });
-
+                  .then(() => resolve())
+                  .catch(error => reject(error))
+              )
+            )
+            // pass original size to Photo
+            .then(() => ({
+                originalWidth, originalHeight
+            }));
+          })
+          // instantiate & save photo model
+          .then(({ originalWidth, originalHeight }) => {
             const photo = new Photo({
               _id: _photoId,
               _album: _albumId,
@@ -140,26 +130,23 @@ app.post('/albums/create', upload.array('images'), (req, res) => {
               height: originalHeight,
               url: `/albums/${_albumId.toString()}/${_photoId.toString()}`,
             });
-            photo.save((error, photo) => {
-              if (error) throw error;
-              album._photos.push(photo._id);
-              callback();
-            });
-          });
-        });
-      });
-    }, (error) => {
-      if (error) throw error;
-      album.save((error, album) => {
-        if (error) throw error;
-        res.status(201).json({
-          message: `successfully created album ${album.name}`,
-          album
-        });
+            album._photos.push(photo._id);
+            return photo.save()
+          })
+          .then(() => resolve())
+          .catch(error => reject(error))
       });
     });
-
-  });
+  })
+  .then(() => album.save())
+  .then(() => res.status(201).json({
+    message: `successfully created album ${album.name}`,
+    album
+  }))
+  .catch(error => res.status(500).json({
+    title: 'An error occurred',
+    error
+  }))
 });
 
 const port = process.env.PORT || 3001;
