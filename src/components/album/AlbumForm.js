@@ -14,13 +14,19 @@ export default class AlbumForm extends Component {
     this.state = {
       uploadedImages: []
     };
-    this.dropImage = this.dropImage.bind(this);
+    this.dropImages = this.dropImages.bind(this);
+    this.removeImage = this.removeImage.bind(this);
     this.saveAlbum = this.saveAlbum.bind(this);
   }
-
-  dropImage(images) {
+  dropImages(images) {
     this.setState({
       uploadedImages: this.state.uploadedImages.concat(images)
+    });
+  }
+  removeImage(image) {
+    this.setState({
+      uploadedImages: this.state.uploadedImages.filter(uploadedImage =>
+      uploadedImage.preview !== image.preview)
     });
   }
   saveAlbum() {
@@ -37,8 +43,10 @@ export default class AlbumForm extends Component {
       <Row>
         {this.state.uploadedImages.map(image =>
           <Col md={3} key={image.name}>
-            <Image src={image.preview} responsive />
-            <p>{image.name}</p>
+            <div>
+              <Image src={image.preview} responsive onClick={() => this.removeImage(image)}/>
+              <p>{image.name}</p>
+            </div>
           </Col>
         )}
       </Row>
@@ -50,7 +58,7 @@ export default class AlbumForm extends Component {
         <h1>Album Form</h1>
         <Row className="show-grid">
           <Col md={12}>
-            <Dropzone onDrop={this.dropImage}>
+            <Dropzone onDrop={this.dropImages}>
               <p>drag & drop</p>
             </Dropzone>
           </Col>
