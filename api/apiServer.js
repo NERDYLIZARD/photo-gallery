@@ -86,7 +86,7 @@ app.post('/albums/create', upload.array('images'), (req, res) => {
   const _albumId = mongoose.Types.ObjectId();
   const album = new Album({
     _id: _albumId,
-    name: _albumId.toString()
+    name: req.body.albumName
   });
   const albumDirectory = `${albumsDirectory}/${_albumId}`;
   // create album directory

@@ -13,6 +13,7 @@ export default (
     <IndexRoute component={HomePage}/>
     <Route path="album" component={Album}/>
     <Route path="album-form" component={AlbumForm}/>
+    <Route path="album-form/:id" component={AlbumForm}/>
     <Route path="about" component={AboutPage}/>
     <Route path="*" component={NotFoundPage}/>
   </Route>

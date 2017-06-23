@@ -5,14 +5,15 @@
 import React, {Component} from 'react';
 import Proptypes from 'prop-types';
 import Dropzone from 'react-dropzone';
-import { Grid, Row, Col, Image, ButtonToolbar, Button } from 'react-bootstrap';
+import { Grid, Row, Col, Image, ButtonToolbar, Button, FormGroup, FormControl } from 'react-bootstrap';
 import axios from 'axios';
 
 export default class AlbumForm extends Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      uploadedImages: []
+      uploadedImages: [],
+      albumName: ''
     };
     this.dropImages = this.dropImages.bind(this);
     this.removeImage = this.removeImage.bind(this);
@@ -32,7 +33,7 @@ export default class AlbumForm extends Component {
   saveAlbum() {
     // formData() for multipart data
     const formData = new FormData();
-    formData.append('name', 'abc');
+    formData.append('albumName', this.state.albumName);
     this.state.uploadedImages.map(image =>
       formData.append('images', image)
     );
@@ -55,7 +56,15 @@ export default class AlbumForm extends Component {
   render() {
     return (
       <Grid>
-        <h1>Album Form</h1>
+        <FormGroup>
+          <FormControl
+            type="text"
+            value={this.state.albumName}
+            placeholder="Album Name"
+            onChange={(e) => this.setState({ albumName: e.target.value })}
+          />
+        </FormGroup>
+        <h1>Album</h1>
         <Row className="show-grid">
           <Col md={12}>
             <Dropzone onDrop={this.dropImages}>
