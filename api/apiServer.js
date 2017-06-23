@@ -66,7 +66,6 @@ app.get('/albums/:id', (req, res) => {
 
 
 app.get('/albums/:id/:photoId', (req, res) => {
-
   const albumId = req.params.id;
   const photoId = req.params.photoId;
   const size = req.query.size;
@@ -84,70 +83,78 @@ app.get('/albums/:id/:photoId', (req, res) => {
 
 const upload = multer();
 app.post('/albums/create', upload.array('images'), (req, res) => {
-
   const _albumId = mongoose.Types.ObjectId();
-  const albumDirectory = `${albumsDirectory}/${_albumId}`;
   const album = new Album({
     _id: _albumId,
     name: _albumId.toString()
   });
+  const albumDirectory = `${albumsDirectory}/${_albumId}`;
   // create album directory
-  fs.ensureDir(albumDirectory).then(() => {
-    return Promise.map(req.files, image => {
-      const _photoId = mongoose.Types.ObjectId();
-      const ext = image.mimetype.split('/').pop();
-      const data = image.buffer;
-      const photoDirectory = `${albumDirectory}/${_photoId}`;
+  fs.ensureDir(albumDirectory)
+    .then(() => createPhotos(req.files, album, albumDirectory))
+    .then(() => album.save())
+    .then(() => res.status(201).json({
+      message: `successfully created album ${album.name}`,
+      album
+    }))
+    .catch(error => res.status(500).json({
+      title: 'An error occurred',
+      error
+    }))
+});
 
-      // create photo directories
-      return new Promise((resolve, reject) => {
-        fs.ensureDir(photoDirectory)
-          .then(() => fs.outputFile(`${photoDirectory}/original.${ext}`, data))
-          .then(() => sizeOf(`${photoDirectory}/original.${ext}`))
-          // resize the photos
-          .then(({ width: originalWidth, height: originalHeight }) => {
-            const width = ['1280', '1024', '800', '500', '240'];
-            return Promise.map(width, width =>
-              new Promise((resolve, reject) =>
-                sharp(`${photoDirectory}/original.${ext}`)
-                  .resize(width >= originalWidth ?  originalWidth : +width)
-                  .toFile(`${photoDirectory}/${width}.jpg`)
-                  .then(() => resolve())
-                  .catch(error => reject(error))
-              )
-            )
-            // pass original size to Photo
-            .then(() => ({
-                originalWidth, originalHeight
-            }));
-          })
-          // instantiate & save photo model
-          .then(({ originalWidth, originalHeight }) => {
-            const photo = new Photo({
-              _id: _photoId,
-              _album: _albumId,
-              width: originalWidth,
-              height: originalHeight,
-              url: `/albums/${_albumId.toString()}/${_photoId.toString()}`,
-            });
-            album._photos.push(photo._id);
-            return photo.save()
-          })
-          .then(() => resolve())
-          .catch(error => reject(error))
-      });
+function instantiatePhoto(_photoId, _albumId, originalWidth, originalHeight) {
+  const photo = new Photo({
+    _id: _photoId,
+    _album: _albumId,
+    width: originalWidth,
+    height: originalHeight,
+    url: `/albums/${_albumId.toString()}/${_photoId.toString()}`,
+  });
+  return photo.save();
+}
+
+function resize(photoDirectory, originalWidth, originalHeight, ext) {
+  const width = ['1280', '1024', '800', '500', '240'];
+  return Promise.map(width, width =>
+    new Promise((resolve, reject) =>
+      sharp(`${photoDirectory}/original.${ext}`)
+        .resize(width >= originalWidth ?  originalWidth : +width)
+        .toFile(`${photoDirectory}/${width}.jpg`)
+        .then(() => resolve())
+        .catch(error => reject(error))
+    )
+  )
+  // pass original size to Photo
+  .then(() => Promise.resolve({ originalWidth, originalHeight }))
+  .catch(error => Promise.reject(error))
+}
+
+function createPhotos(images, album, albumDirectory) {
+  return Promise.map(images, image => {
+    const _photoId = mongoose.Types.ObjectId();
+    const ext = image.mimetype.split('/').pop();
+    const data = image.buffer;
+    const photoDirectory = `${albumDirectory}/${_photoId}`;
+
+    // create photo directories
+    return new Promise((resolve, reject) => {
+      fs.ensureDir(photoDirectory)
+        .then(() => fs.outputFile(`${photoDirectory}/original.${ext}`, data))
+        .then(() => sizeOf(`${photoDirectory}/original.${ext}`))
+        .then(({ width: originalWidth, height: originalHeight }) =>
+          resize(photoDirectory, originalWidth, originalHeight, ext))
+        .then(({ originalWidth, originalHeight }) =>
+          instantiatePhoto(_photoId, album._id, originalWidth, originalHeight))
+        .then(photo => album._photos.push(photo._id))
+        .then(() => resolve())
+        .catch(error => reject(error))
     });
   })
-  .then(() => album.save())
-  .then(() => res.status(201).json({
-    message: `successfully created album ${album.name}`,
-    album
-  }))
-  .catch(error => res.status(500).json({
-    title: 'An error occurred',
-    error
-  }))
-});
+    .then(() => Promise.resolve())
+    .catch(error => Promise.reject(error));
+}
+
 
 const port = process.env.PORT || 3001;
 app.listen(port, error => {
