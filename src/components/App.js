@@ -12,7 +12,7 @@ class App extends React.Component {
         {/*header*/}
         <IndexLink to="/">Home</IndexLink>
         {' | '}
-        <Link to="/album">Album</Link>
+        <Link to="/albums">Albums</Link>
         {' | '}
         <Link to="/about">About</Link>
         <br/>

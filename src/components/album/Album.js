@@ -7,6 +7,7 @@ import axios from 'axios';
 import Gallery from 'react-photo-gallery';
 import Lightbox from 'react-images';
 import Measure from 'react-measure';
+import Proptypes from 'prop-types';
 import React from 'react';
 
 import '../../styles/album.scss';
@@ -48,7 +49,7 @@ class Album extends React.Component{
     });
   }
   handleScroll(){
-    let scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+    const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
     if ((window.innerHeight + scrollY) >= (document.body.offsetHeight - 50)) {
       this.loadMorePhotos();
     }
@@ -62,7 +63,7 @@ class Album extends React.Component{
       return;
     }
     // API request
-    axios.get(`/api/albums/59466c096907ec1fc02a6e36?perPage=5&pageNum=${this.state.pageNum}`)
+    axios.get(`/api/albums/${this.props.params.id}?perPage=5&pageNum=${this.state.pageNum}`)
       .then(response => {
         let photos = [];
         response.data.album._photos.forEach(photo => {
@@ -159,5 +160,8 @@ class Album extends React.Component{
   }
 }
 
+Album.propTypes = {
+  params: Proptypes.object.isRequired
+};
 
 export default Album;

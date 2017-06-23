@@ -2,7 +2,6 @@
  * Created on 11-Jun-17.
  */
 'use strict';
-const async = require('async');
 const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -16,7 +15,7 @@ const sharp = require('sharp');
 const sizeOf = require('image-size');
 
 mongoose.connect("localhost:27017/photo-gallery");
-Promise.promisifyAll(mongoose);
+mongoose.Promise = Promise;
 
 const app = express();
 const albumsDirectory = path.join(__dirname, 'upload', 'albums');
@@ -27,6 +26,41 @@ const Photo = require('../models/photo');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.get('/albums', (req, res) => {
+  const pageNum = +req.query.pageNum;
+  const perPage = +req.query.perPage;
+  Album.count((error, totalAlbums) => {
+    if (error)
+      return res.status(500).json({
+        title: 'An error occurred',
+        error
+      });
+    Album.find()
+    // populate url for album cover,
+      // will have album cover field in future
+      .populate('_photos', 'url')
+      .skip((pageNum - 1) * perPage)
+      .limit(perPage)
+      .exec((error, albums) => {
+        if (error)
+          return res.status(500).json({
+            title: 'An error occurred',
+            error
+          });
+        res.status(200).json({
+          message: 'successfully fetch albums',
+          albumSet: {
+            albums,
+            pages: Math.ceil(totalAlbums / perPage),
+            totalAlbums,
+            pageNum,
+            perPage
+          }
+        });
+      });
+  });
+});
 
 app.get('/albums/:id', (req, res) => {
   Album.findById(req.params.id, (error, album) => {
