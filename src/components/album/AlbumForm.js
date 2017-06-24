@@ -42,6 +42,8 @@ export default class AlbumForm extends Component {
     });
   }
   saveAlbum() {
+    if (!this.state.uploadedImages.length)
+      return
     // formData() for multipart data
     const formData = new FormData();
     this.state.uploadedImages.map(image =>
@@ -108,6 +110,7 @@ export default class AlbumForm extends Component {
         <ButtonToolbar>
           <Button
             bsStyle="primary"
+            disabled={!this.state.uploadedImages.length}
             onClick={this.saveAlbum}
           >Save</Button>
           <Button
