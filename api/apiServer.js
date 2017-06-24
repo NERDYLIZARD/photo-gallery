@@ -137,6 +137,28 @@ app.post('/albums/create', upload.array('images'), (req, res) => {
     }))
 });
 
+app.post('/albums/:id/add-photos', upload.array('images'), (req, res) => {
+  Album.findById(req.params.id, (error, album) => {
+    if (error)
+      return res.status(500).json({
+        title: 'An error occurred',
+        error
+      });
+    const albumDirectory = `${albumsDirectory}/${req.params.id}`;
+    createPhotos(req.files, album, albumDirectory)
+      .then(() => album.save())
+      .then(() => res.status(200).json({
+        message: `successfully added photos to album ${album.name}`,
+        album
+      }))
+      .catch(error => res.status(500).json({
+        title: 'An error occurred',
+        error
+      }));
+  });
+});
+
+
 function instantiatePhoto(_photoId, _albumId, originalWidth, originalHeight) {
   const photo = new Photo({
     _id: _photoId,

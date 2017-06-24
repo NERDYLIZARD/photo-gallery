@@ -16,6 +16,7 @@ export default class AlbumForm extends Component {
       albumName: ''
     };
     this.dropImages = this.dropImages.bind(this);
+    this.navigateAway = this.navigateAway.bind(this);
     this.removeImage = this.removeImage.bind(this);
     this.saveAlbum = this.saveAlbum.bind(this);
   }
@@ -23,6 +24,16 @@ export default class AlbumForm extends Component {
     this.setState({
       uploadedImages: this.state.uploadedImages.concat(images)
     });
+  }
+  navigateAway() {
+    const id = this.props.params.id;
+    let postUrl = `/api/albums/${id}/add-photos`;
+    let redirectUrl = `/albums/${id}`;
+    if (!id) {
+      postUrl = '/api/albums/create';
+      redirectUrl = '/albums';
+    }
+    this.props.router.push(redirectUrl);
   }
   removeImage(image) {
     this.setState({
@@ -33,11 +44,22 @@ export default class AlbumForm extends Component {
   saveAlbum() {
     // formData() for multipart data
     const formData = new FormData();
-    formData.append('albumName', this.state.albumName);
     this.state.uploadedImages.map(image =>
       formData.append('images', image)
     );
-    axios.post('/api/albums/create', formData);
+    // add new photos to existing album
+    const id = this.props.params.id;
+    let postUrl = `/api/albums/${id}/add-photos`;
+    let redirectUrl = `/albums/${id}`;
+
+    // create new album
+    if (!id) {
+      formData.append('albumName', this.state.albumName);
+      postUrl = '/api/albums/create';
+      redirectUrl = '/albums';
+    }
+    axios.post(postUrl, formData)
+      .then(() => this.props.router.push(redirectUrl))
   }
   renderPreviews() {
     return (
@@ -88,7 +110,9 @@ export default class AlbumForm extends Component {
             bsStyle="primary"
             onClick={this.saveAlbum}
           >Save</Button>
-          <Button>Cancel</Button>
+          <Button
+            onClick={this.navigateAway}
+          >Cancel</Button>
         </ButtonToolbar>
       </Grid>
     );
