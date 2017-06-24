@@ -6,7 +6,7 @@ import _ from 'lodash';
 import axios from 'axios';
 import React, {Component} from 'react';
 import { Link } from 'react-router';
-import { Grid, Thumbnail, Row, Col } from 'react-bootstrap';
+import { Grid, Thumbnail, Row, Col, Button } from 'react-bootstrap';
 
 export default class AlbumList extends Component {
   constructor(props, context) {
@@ -64,7 +64,12 @@ export default class AlbumList extends Component {
   render() {
     return (
       <Grid>
-        <h1>Albums</h1>
+        <Row>
+          <h1>Albums</h1>
+          <Link to="/album-form">
+            <Button bsStyle="primary">Add Album</Button>
+          </Link>
+        </Row>
         {this.state.albums ?
           this.renderAlbums() :
           <div/>}

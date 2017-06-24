@@ -9,6 +9,8 @@ import Lightbox from 'react-images';
 import Measure from 'react-measure';
 import Proptypes from 'prop-types';
 import React from 'react';
+import { Link } from 'react-router';
+import { Row, Button } from 'react-bootstrap';
 
 import '../../styles/album.scss';
 
@@ -132,7 +134,12 @@ class Album extends React.Component{
     if (this.state.photos){
       return(
         <div className="Album">
-          <h1>Album</h1>
+          <Row>
+            <h1>Album</h1>
+            <Link to={`/album-form/${this.props.params.id}`}>
+              <Button bsStyle="primary">Add Photos</Button>
+            </Link>
+          </Row>
           {this.renderGallery()}
           <Lightbox
             backdropClosesModal={false}

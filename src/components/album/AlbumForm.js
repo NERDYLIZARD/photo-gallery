@@ -56,15 +56,22 @@ export default class AlbumForm extends Component {
   render() {
     return (
       <Grid>
-        <FormGroup>
-          <FormControl
-            type="text"
-            value={this.state.albumName}
-            placeholder="Album Name"
-            onChange={(e) => this.setState({ albumName: e.target.value })}
-          />
-        </FormGroup>
-        <h1>Album</h1>
+        {this.props.params.id ?
+          <h1>Add Photos</h1> :
+          <h1>New Album</h1>
+        }
+        {this.props.params.id ?
+          <div></div> :
+          <FormGroup>
+            <FormControl
+              autoFocus
+              type="text"
+              value={this.state.albumName}
+              placeholder="Album Name"
+              onChange={(e) => this.setState({albumName: e.target.value})}
+            />
+          </FormGroup>
+        }
         <Row className="show-grid">
           <Col md={12}>
             <Dropzone onDrop={this.dropImages}>
@@ -89,5 +96,5 @@ export default class AlbumForm extends Component {
 }
 
 AlbumForm.propTypes = {
-  // myProp: PropTypes.string.isRequired
+  params: Proptypes.object.isRequired
 };
