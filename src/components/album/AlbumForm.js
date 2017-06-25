@@ -20,6 +20,10 @@ export default class AlbumForm extends Component {
     this.removeImage = this.removeImage.bind(this);
     this.saveAlbum = this.saveAlbum.bind(this);
   }
+  componentWillUnmount() {
+    this.state.uploadedImages.forEach(image =>
+      window.URL.revokeObjectURL(image.preview));
+  }
   dropImages(images) {
     this.setState({
       uploadedImages: this.state.uploadedImages.concat(images)
