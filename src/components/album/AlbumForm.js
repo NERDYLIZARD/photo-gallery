@@ -27,10 +27,8 @@ export default class AlbumForm extends Component {
   }
   navigateAway() {
     const id = this.props.params.id;
-    let postUrl = `/api/albums/${id}/add-photos`;
     let redirectUrl = `/albums/${id}`;
     if (!id) {
-      postUrl = '/api/albums/create';
       redirectUrl = '/albums';
     }
     this.props.router.push(redirectUrl);
@@ -42,8 +40,9 @@ export default class AlbumForm extends Component {
     });
   }
   saveAlbum() {
-    if (!this.state.uploadedImages.length)
-      return
+    if (!this.state.uploadedImages.length ||
+        !this.state.albumName.length)
+      return;
     // formData() for multipart data
     const formData = new FormData();
     this.state.uploadedImages.map(image =>
@@ -61,7 +60,7 @@ export default class AlbumForm extends Component {
       redirectUrl = '/albums';
     }
     axios.post(postUrl, formData)
-      .then(() => this.props.router.push(redirectUrl))
+      .then(() => this.props.router.push(redirectUrl));
   }
   renderPreviews() {
     return (
@@ -85,7 +84,7 @@ export default class AlbumForm extends Component {
           <h1>New Album</h1>
         }
         {this.props.params.id ?
-          <div></div> :
+          <div/> :
           <FormGroup>
             <FormControl
               autoFocus
@@ -123,5 +122,6 @@ export default class AlbumForm extends Component {
 }
 
 AlbumForm.propTypes = {
-  params: Proptypes.object.isRequired
+  params: Proptypes.object.isRequired,
+  router: Proptypes.object.isRequired
 };
