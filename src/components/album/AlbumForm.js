@@ -15,9 +15,10 @@ export default class AlbumForm extends Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      uploadedImages: [],
       albumName: '',
-      errors: {}
+      errors: {},
+      saving: false,
+      uploadedImages: []
     };
     this.dropImages = this.dropImages.bind(this);
     this.formIsValid = this.formIsValid.bind(this);
@@ -80,8 +81,13 @@ export default class AlbumForm extends Component {
       postUrl = '/api/albums/create';
       redirectUrl = '/albums';
     }
+    this.setState({ saving: true });
     axios.post(postUrl, formData)
-      .then(() => this.props.router.push(redirectUrl));
+      .then(() => {
+        this.setState({ saving: false });
+        this.props.router.push(redirectUrl);
+      })
+      .catch(error => this.setState({ saving: false }));
   }
   renderPreviews() {
     return (
@@ -130,8 +136,9 @@ export default class AlbumForm extends Component {
         <ButtonToolbar>
           <Button
             bsStyle="primary"
+            disabled={this.state.saving}
             onClick={this.saveAlbum}
-          >Save</Button>
+          >{this.state.saving ? 'Saving' : 'Save'}</Button>
           <Button
             onClick={this.navigateAway}
           >Cancel</Button>
