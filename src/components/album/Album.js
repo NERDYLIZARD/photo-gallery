@@ -17,7 +17,7 @@ import '../../styles/album.scss';
 class Album extends React.Component{
   constructor(){
     super();
-    this.state = {currentImage:0, loadedAll: false, photos:null, pageNum:1, totalPages:1 };
+    this.state = { albumName:'', currentImage:0, loadedAll: false, photos:null, pageNum:1, totalPages:1 };
     this.closeLightbox = this.closeLightbox.bind(this);
     this.gotoNext = this.gotoNext.bind(this);
     this.gotoPrevious = this.gotoPrevious.bind(this);
@@ -91,6 +91,7 @@ class Album extends React.Component{
           });
         });
         this.setState({
+          albumName: response.data.album.name,
           photos: this.state.photos ? this.state.photos.concat(photos) : photos,
           pageNum: this.state.pageNum + 1,
           totalPages: response.data.album.pages
@@ -135,7 +136,7 @@ class Album extends React.Component{
       return(
         <div className="Album">
           <Row>
-            <h1>Album</h1>
+            <h1>{this.state.albumName}</h1>
             <Link to={`/album-form/${this.props.params.id}`}>
               <Button bsStyle="primary">Add Photos</Button>
             </Link>
@@ -147,6 +148,7 @@ class Album extends React.Component{
             images={this.state.photos}
             isOpen={this.state.lightboxIsOpen}
             onClose={this.closeLightbox}
+            onClickImage={this.gotoNext}
             onClickPrev={this.gotoPrevious}
             onClickNext={this.gotoNext}
             onUpdateCaption={this.updateCaption}

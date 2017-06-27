@@ -50,7 +50,7 @@
     "react-bootstrap": "0.31.0",
     "react-dom": "15.5.4",
     "react-dropzone": "3.13.2",
-    "react-images": "https://github.com/NERDYLIZARD/react-images/tarball/master",
+    "react-images": "0.5.4",
     "react-measure": "1.4.7",
     "react-photo-gallery": "5.6.1",
     "react-redux": "5.0.5",

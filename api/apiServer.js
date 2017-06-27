@@ -84,7 +84,7 @@ app.get('/albums/:id', (req, res) => {
           });
 
         res.status(200).json({
-          message: `successfully fetched photos from album: ${album.name}`,
+          message: `successfully fetched photos from album: ${album._doc.name}`,
           album:
             Object.assign({}, album._doc, {
               pages: Math.ceil(album._photos.length/perPage),

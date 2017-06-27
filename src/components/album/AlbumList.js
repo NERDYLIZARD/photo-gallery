@@ -37,7 +37,7 @@ export default class AlbumList extends Component {
           totalPages: albumSet.pages
         })
       )
-      .catch(err => console.error(err));
+      .catch(error => console.error(error));
   }
   handleScroll(){
     const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
