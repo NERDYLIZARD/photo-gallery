@@ -10,7 +10,6 @@ import Measure from 'react-measure';
 import Proptypes from 'prop-types';
 import React from 'react';
 import { Link } from 'react-router';
-import { Row, Button } from 'react-bootstrap';
 
 import '../../styles/album.scss';
 
@@ -134,16 +133,17 @@ class Album extends React.Component{
     // no loading sign if its all loaded
     if (this.state.photos){
       return(
+      <div>
+        <h1 className="text-center">{this.state.albumName}</h1>
+        <div className="text-center">
+          <Link to={`/album-form/${this.props.params.id}`}>
+            <button className="btn btn-primary">Add Photos</button>
+          </Link>
+        </div>
         <div className="Album">
-          <Row>
-            <h1>{this.state.albumName}</h1>
-            <Link to={`/album-form/${this.props.params.id}`}>
-              <Button bsStyle="primary">Add Photos</Button>
-            </Link>
-          </Row>
           {this.renderGallery()}
           <Lightbox
-            backdropClosesModal={false}
+            backdropClosesModal={true}
             currentImage={this.state.currentImage}
             images={this.state.photos}
             isOpen={this.state.lightboxIsOpen}
@@ -157,7 +157,7 @@ class Album extends React.Component{
           />
           {!this.state.loadedAll && <div className="loading-msg" id="msg-loading-more">Loading</div>}
         </div>
-      );
+      </div>);
     }
     else{
       return(

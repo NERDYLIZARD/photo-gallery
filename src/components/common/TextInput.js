@@ -4,15 +4,14 @@
 'use strict';
 import React from 'react';
 import Proptypes from 'prop-types';
-import { FormGroup, FormControl, ControlLabel, Alert } from 'react-bootstrap';
 
 const TextInput = ({ type, name, value, onChange, label, placeholder, autoFocus, errors }) => {
   return (
-    <FormGroup
-      controlId={name}>
-      <ControlLabel>{label}</ControlLabel>
-      <FormControl
+    <div className="form-group">
+      <label htmlFor={name}>{label}</label>
+      <input
         autoFocus={autoFocus}
+        className="form-control"
         name={name}
         onChange={onChange}
         placeholder={placeholder}
@@ -20,9 +19,9 @@ const TextInput = ({ type, name, value, onChange, label, placeholder, autoFocus,
         value={value}
       />
       {errors && !!errors.length && errors.map((error, i) =>
-        <Alert bsStyle="danger" key={i}>{error}</Alert>)
+        <div className="alert alert-danger" key={i}>{error}</div>)
       }
-    </FormGroup>
+    </div>
   );
 };
 

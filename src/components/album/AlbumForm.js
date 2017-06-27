@@ -9,7 +9,6 @@ import Proptypes from 'prop-types';
 import React, {Component} from 'react';
 
 import TextInput from '../common/TextInput';
-import { Grid, Row, Col, Image, ButtonToolbar, Button } from 'react-bootstrap';
 
 export default class AlbumForm extends Component {
   constructor(props, context) {
@@ -91,27 +90,27 @@ export default class AlbumForm extends Component {
   }
   renderPreviews() {
     return (
-      <Row>
+      <div className="row">
         {this.state.uploadedImages.map(image =>
-          <Col md={3} key={image.name}>
+          <div className="col-sm-6 col-md-4" key={image.preview}>
             <div>
-              <Image src={image.preview} responsive onClick={() => this.removeImage(image)}/>
+              <img
+                className="img-responsive"
+                onClick={() => this.removeImage(image)}
+                src={image.preview}/>
               <p>{image.name}</p>
             </div>
-          </Col>
+          </div>
         )}
-      </Row>
+      </div>
     );
   }
   render() {
     return (
-      <Grid>
+      <div className="container">
+        <h1 className="text-center">{this.props.params.id ? "Add Photos" : "New Album"}</h1>
         {this.props.params.id ?
-          <h1>Add Photos</h1> :
-          <h1>New Album</h1>
-        }
-        {this.props.params.id ?
-          <div/> :
+          null :
           <TextInput
             autoFocus={true}
             errors={this.state.errors.albumName}
@@ -122,28 +121,29 @@ export default class AlbumForm extends Component {
             value={this.state.albumName}
           />
         }
-        <Row className="show-grid">
-          <Col md={12}>
-            <Dropzone onDrop={this.dropImages}>
-              <p>drag & drop</p>
-            </Dropzone>
-          </Col>
-        </Row>
+        <div className="row">
+          <Dropzone onDrop={this.dropImages}>
+            <p>drag & drop</p>
+          </Dropzone>
+        </div>
         {this.state.uploadedImages.length ?
           this.renderPreviews() :
           <div/>
         }
-        <ButtonToolbar>
-          <Button
-            bsStyle="primary"
+        <div>
+          <button
+            className="btn btn-primary"
             disabled={this.state.saving}
-            onClick={this.saveAlbum}
-          >{this.state.saving ? 'Saving' : 'Save'}</Button>
-          <Button
-            onClick={this.navigateAway}
-          >Cancel</Button>
-        </ButtonToolbar>
-      </Grid>
+            onClick={this.saveAlbum}>
+            {this.state.saving ? 'Saving' : 'Save'}
+          </button>
+          <button
+            className="btn btn-default"
+            onClick={this.navigateAway}>
+            Cancel
+          </button>
+        </div>
+      </div>
     );
   }
 }

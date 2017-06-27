@@ -2,14 +2,6 @@
 // Demo Stylesheet
 // -------------------
 */
-
-//body {
-//  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-//  font-size: 14px;
-//  color: #333;
-//  margin: 0 auto;
-//  padding: 0;
-//}
 .clearfix:after {
   visibility: hidden;
   display: block;
@@ -20,49 +12,19 @@
 }
 .clearfix { display: inline-block; }
 /* start commented backslash hack \*/
-* html .clearfix { height: 1%; }
 .clearfix { display: block; }
 /* close commented backslash hack */
 .clearLeft{
   clear: left;
 }
-a {
-  color: #08c;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-a:link {
-  text-decoration: none;
-}
-a:hover {
-  color: #ccc;
-}
 .container {
   margin: 0 auto;
-}
-h1, h2, h3 {
-  color: #222;
-  font-weight: 200;
-  width: 90%;
-  margin: 0 auto;
-  margin-top: 10px;
-  text-align: center;
-}
-h1{
-  font-size: 35px;
-  margin-top: 10px;
 }
 iframe{
   margin: 0 auto;
   margin-top: 10px;
   display: block;
   width: 85px;
-
-
 }
 .Album{
   padding-top: 28px;
@@ -78,7 +40,6 @@ iframe{
   width: 130px;
   margin: 0 auto;
 }
-
 .loading-msg:after {
   overflow: hidden;
   display: inline-block;

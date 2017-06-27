@@ -6,7 +6,7 @@ import _ from 'lodash';
 import axios from 'axios';
 import React, {Component} from 'react';
 import { Link } from 'react-router';
-import { Grid, Thumbnail, Row, Col, Button } from 'react-bootstrap';
+import '../../styles/album-list.scss';
 
 export default class AlbumList extends Component {
   constructor(props, context) {
@@ -47,33 +47,33 @@ export default class AlbumList extends Component {
   }
   renderAlbums() {
     return (
-    <Row>
+    <div className="row Album">
       {this.state.albums.map(album =>
-        <Col xs={6} md={4} key={album._id}>
-          <Link to={`/albums/${album._id}`}>
-            <Thumbnail
-              alt={album.name}
-              src={`/api${album._photos[0].url}?size=500`}>
-              <h3>{album.name}</h3>
-            </Thumbnail>
-          </Link>
-        </Col>
-      )}
-    </Row>);
+      <div className="col-sm-6 col-md-4" key={album._id}>
+        <Link to={`/albums/${album._id}`}>
+          <div className="thumbnail">
+            <img src={`/api${album._photos[0].url}?size=500`} alt={album.name}/>
+              <div className="caption">
+                <h3 className="text-center">{album.name}</h3>
+              </div>
+          </div>
+        </Link>
+      </div>)}
+    </div>);
   }
   render() {
     return (
-      <Grid>
-        <Row>
-          <h1>Albums</h1>
+      <div className="container">
+        <h1 className="text-center">Albums</h1>
+        <div className="row text-center">
           <Link to="/album-form">
-            <Button bsStyle="primary">Add Album</Button>
+            <button className="btn btn-primary">Add Album</button>
           </Link>
-        </Row>
+        </div>
         {this.state.albums ?
           this.renderAlbums() :
           <div/>}
-      </Grid>
+      </div>
     );
   }
 }
