@@ -158,6 +158,26 @@ app.post('/albums/:id/add-photos', upload.array('images'), (req, res) => {
   });
 });
 
+app.delete('/photos/:id', (req, res) => {
+  Photo.findById(req.params.id, (error, photo) => {
+    if (error)
+      return res.status(500).json({
+        title: 'An error occurred',
+        error
+      });
+    photo.remove((error, photo) => {
+      if (error)
+        return res.status(500).json({
+          title: 'An error occurred',
+          error
+        });
+      res.status(200).json({
+        message: `successfully removed photo: ${photo._id}`
+      });
+    });
+  });
+})
+
 
 function instantiatePhoto(_photoId, _albumId, originalWidth, originalHeight) {
   const photo = new Photo({

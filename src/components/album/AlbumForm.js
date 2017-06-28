@@ -36,7 +36,7 @@ export default class AlbumForm extends Component {
   }
   formIsValid() {
     const errors = {};
-    if (!this.state.albumName.length) {
+    if (!this.props.params.id && !this.state.albumName.length) {
       errors.albumName = [];
       errors.albumName.push('Album name is required');
     }
