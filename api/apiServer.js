@@ -201,8 +201,14 @@ function resize(photoDirectory, originalWidth, originalHeight, ext) {
         .catch(error => reject(error))
     )
   )
-  // pass original size to Photo
-  .then(() => Promise.resolve({ originalWidth, originalHeight }))
+  .then(() => {
+    // clear cache after finish image processing. Otherwise,
+      // immediate modification of file e.g delete is not possible.
+    sharp.cache(false);
+    // pass original size to Photo
+    return Promise.resolve({originalWidth, originalHeight})
+  })
+    // clear cache
   .catch(error => Promise.reject(error))
 }
 
