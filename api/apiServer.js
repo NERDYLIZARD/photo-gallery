@@ -158,6 +158,26 @@ app.post('/albums/:id/add-photos', upload.array('images'), (req, res) => {
   });
 });
 
+app.delete('/albums/:id', (req, res) => {
+  Album.findById(req.params.id, (error, album) => {
+    if (error)
+      return res.status(500).json({
+        title: 'An error occurred',
+        error
+      });
+    album.remove((error, album) => {
+      if (error)
+        return res.status(500).json({
+          title: 'An error occurred',
+          error
+        });
+      res.status(200).json({
+        message: `successfully removed album: ${album._id}`
+      });
+    });
+  });
+});
+
 app.delete('/photos/:id', (req, res) => {
   Photo.findById(req.params.id, (error, photo) => {
     if (error)
@@ -176,7 +196,7 @@ app.delete('/photos/:id', (req, res) => {
       });
     });
   });
-})
+});
 
 
 function instantiatePhoto(_photoId, _albumId, originalWidth, originalHeight) {
@@ -208,8 +228,7 @@ function resize(photoDirectory, originalWidth, originalHeight, ext) {
     // pass original size to Photo
     return Promise.resolve({originalWidth, originalHeight})
   })
-    // clear cache
-  .catch(error => Promise.reject(error))
+  .catch(error => Promise.reject(error));
 }
 
 function createPhotos(images, album, albumDirectory) {
@@ -230,7 +249,7 @@ function createPhotos(images, album, albumDirectory) {
           instantiatePhoto(_photoId, album._id, originalWidth, originalHeight))
         .then(photo => album._photos.push(photo._id))
         .then(() => resolve())
-        .catch(error => reject(error))
+        .catch(error => reject(error));
     });
   })
     .then(() => Promise.resolve())

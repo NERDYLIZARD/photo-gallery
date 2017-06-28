@@ -2,9 +2,9 @@
  * Created on 14-Jun-17.
  */
 'use strict';
+const fs = require('fs-extra');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const fs = require('fs-extra');
 
 const config = require('../project.config');
 const Album = require('./album');
@@ -16,8 +16,14 @@ const schema = new Schema({
   height: { type: Number, required: true },
   url: { type: String, required: true },
   _album: { type: Schema.Types.ObjectId, ref: 'Album' },
+  removeHookEnabled: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
   modifiedAt: { type: Date, default: Date.now }
+});
+
+// hook guard: whether hook should be called
+schema.post('remove', (photo, next) => {
+  if (photo.removeHookEnabled) next();
 });
 
 // pull the being deleted photo out of ablum.photos[]
