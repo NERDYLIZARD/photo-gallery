@@ -28,8 +28,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.get('/albums', (req, res) => {
-  const pageNum = +req.query.pageNum;
-  const perPage = +req.query.perPage;
+  const pageNum = Math.max(1, +req.query.pageNum);
+  const perPage = Math.max(1, +req.query.perPage);
   Album.count((error, totalAlbums) => {
     if (error)
       return res.status(500).json({
@@ -42,6 +42,7 @@ app.get('/albums', (req, res) => {
       .populate('_photos', 'url')
       .skip((pageNum - 1) * perPage)
       .limit(perPage)
+      .sort({ createdAt: 'descending' })
       .exec((error, albums) => {
         if (error)
           return res.status(500).json({
@@ -70,19 +71,19 @@ app.get('/albums/:id', (req, res) => {
         error
       });
     // pagination
-    const pageNum = +req.query.pageNum;
-    const perPage = +req.query.perPage;
+    const pageNum = Math.max(1, +req.query.pageNum);
+    const perPage = Math.max(1, +req.query.perPage);
+
     Photo.find({ _album: req.params.id })
       .skip((pageNum-1) * perPage)
       .limit(perPage)
+      .sort({ createdAt: 'descending' })
       .exec((error, photos) => {
-
         if (error)
           return res.status(500).json({
             title: 'An error occurred',
             error
           });
-
         res.status(200).json({
           message: `successfully fetched photos from album: ${album._doc.name}`,
           album:
