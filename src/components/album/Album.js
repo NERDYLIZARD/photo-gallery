@@ -14,8 +14,8 @@ import { Link } from 'react-router';
 import '../../styles/album.scss';
 
 class Album extends React.Component{
-  constructor(){
-    super();
+  constructor(props, context) {
+    super(props, context);
     this.state = { albumName:'', currentImage:0, loadedAll: false, photos:null, pageNum:1, totalPages:1 };
     this.closeLightbox = this.closeLightbox.bind(this);
     this.gotoNext = this.gotoNext.bind(this);
@@ -30,43 +30,43 @@ class Album extends React.Component{
     this.loadMorePhotos = _.debounce(this.loadMorePhotos, 200);
     window.addEventListener('scroll', this.handleScroll);
   }
-  closeLightbox(){
+  closeLightbox() {
     this.setState({
       currentImage: 0,
       lightboxIsOpen: false,
     });
   }
-  gotoPrevious(){
+  gotoPrevious() {
     this.setState({
       currentImage: this.state.currentImage - 1,
     });
   }
-  gotoNext(){
-    if(this.state.photos.length - 2 === this.state.currentImage){
+  gotoNext() {
+    if(this.state.photos.length - 2 === this.state.currentImage) {
       this.loadMorePhotos();
     }
     this.setState({
       currentImage: this.state.currentImage + 1,
     });
   }
-  handleScroll(){
+  handleScroll() {
     const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
-    if ((window.innerHeight + scrollY) >= (document.body.offsetHeight - 50)) {
+    if((window.innerHeight + scrollY) >= (document.body.offsetHeight - 50)) {
       this.loadMorePhotos();
     }
   }
   loadMorePhotos(e) {
-    if (e) {
+    if(e) {
       e.preventDefault();
     }
-    if (this.state.pageNum > this.state.totalPages) {
-      this.setState({loadedAll: true});
+    if(this.state.pageNum > this.state.totalPages) {
+      this.setState({ loadedAll: true });
       return;
     }
     // API request
-    axios.get(`/api/albums/${this.props.params.id}?perPage=5&pageNum=${this.state.pageNum}`)
+    axios.get(`/api/albums/${this.props.params.id}?perPage=6&pageNum=${this.state.pageNum}`)
       .then(response => {
-        let photos = [];
+        const photos = [];
         response.data.album._photos.forEach(photo => {
           photos.push({
             src: `/api${photo.url}?size=500`,
@@ -96,9 +96,9 @@ class Album extends React.Component{
           totalPages: response.data.album.pages
         });
       })
-      .catch(err => console.error(err));
+      .catch(error => console.error(error));
   }
-  openLightbox(index, event){
+  openLightbox(index, event) {
     event.preventDefault();
     this.setState({
       currentImage: index,
@@ -108,19 +108,19 @@ class Album extends React.Component{
   updateCaption(caption) {
     console.log(caption);
   }
-  renderGallery(){
+  renderGallery() {
     return(
       <Measure whitelist={['width']}>
         {
           ({ width }) => {
             let cols = 1;
-            if (width >= 480){
+            if(width >= 480) {
               cols = 2;
             }
-            if (width >= 1024){
+            if(width >= 1024) {
               cols = 3;
             }
-            if (width >= 1440){
+            if(width >= 1440) {
               cols = 4;
             }
             return <Gallery photos={this.state.photos} cols={cols} onClickPhoto={this.openLightbox} />;
@@ -129,9 +129,9 @@ class Album extends React.Component{
       </Measure>
     );
   }
-  render(){
+  render() {
     // no loading sign if its all loaded
-    if (this.state.photos){
+    if(this.state.photos) {
       return(
       <div>
         <h1 className="text-center">{this.state.albumName}</h1>
@@ -159,7 +159,7 @@ class Album extends React.Component{
         </div>
       </div>);
     }
-    else{
+    else {
       return(
         <div className="Album">
           <div id="msg-app-loading" className="loading-msg">Loading</div>

@@ -25,10 +25,10 @@ export default class AlbumList extends Component {
       e.preventDefault();
     }
     if (this.state.pageNum > this.state.totalPages) {
-      this.setState({loadedAll: true});
+      this.setState({ loadedAll: true });
       return;
     }
-    axios.get(`/api/albums?perPage=5&pageNum=${this.state.pageNum}`)
+    axios.get(`/api/albums?perPage=6&pageNum=${this.state.pageNum}`)
       .then(response => response.data.albumSet)
       .then(albumSet =>
         this.setState({
@@ -39,7 +39,7 @@ export default class AlbumList extends Component {
       )
       .catch(error => console.error(error));
   }
-  handleScroll(){
+  handleScroll() {
     const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
     if ((window.innerHeight + scrollY) >= (document.body.offsetHeight - 50)) {
       this.loadMoreAlbums();
@@ -59,6 +59,7 @@ export default class AlbumList extends Component {
           </div>
         </Link>
       </div>)}
+      {!this.state.loadedAll && <div className="loading-msg" id="msg-loading-more">Loading</div>}
     </div>);
   }
   render() {
@@ -70,9 +71,11 @@ export default class AlbumList extends Component {
             <button className="btn btn-primary">Add Album</button>
           </Link>
         </div>
-        {this.state.albums ?
-          this.renderAlbums() :
-          <div/>}
+        {
+          !this.state.albums ?
+          <div id="msg-app-loading" className="loading-msg">Loading</div> :
+          this.renderAlbums()
+        }
       </div>
     );
   }
