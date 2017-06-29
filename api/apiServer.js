@@ -84,16 +84,17 @@ app.get('/albums/:id', (req, res) => {
             title: 'An error occurred',
             error
           });
+        const totalPhotos = album._photos.length;
         res.status(200).json({
-          message: `successfully fetched photos from album: ${album._doc.name}`,
-          album:
-            Object.assign({}, album._doc, {
-              pages: Math.ceil(album._photos.length/perPage),
-              totalPhotos: album._photos.length,
-              _photos: photos,
-              pageNum,
-              perPage
-            })
+          message: `successfully fetched photos from album: ${album.name}`,
+          album: {
+            name: album.name,
+            photos,
+            pages: Math.ceil(totalPhotos/perPage),
+            totalPhotos,
+            pageNum,
+            perPage
+          }
         });
       });
   });
