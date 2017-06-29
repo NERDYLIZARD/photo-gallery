@@ -15,10 +15,10 @@ const schema = new Schema({
   height: { type: Number, required: true },
   url: { type: String, required: true },
   _album: { type: Schema.Types.ObjectId, ref: 'Album' },
+  // in some case hook is not required e.g delete entire album
   removeHookEnabled: { type: Boolean, default: true },
-  createdAt: { type: Date, default: Date.now },
-  modifiedAt: { type: Date, default: Date.now }
-});
+}, { timestamps: true });
+
 
 // hook guard: whether hook should be called
 schema.post('remove', (photo, next) => {

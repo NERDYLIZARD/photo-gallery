@@ -13,15 +13,15 @@ const schema = new Schema({
   _id : { type: Schema.Types.ObjectId, required: true },
   name: { type: String, required: true },
   _photos: [{ type: Schema.Types.ObjectId, ref: 'Photo' }],
-  createdAt: { type: Date, default: Date.now },
-  modifiedAt: { type: Date, default: Date.now }
-});
+}, { timestamps: true });
 
 schema.post('remove', (album, next) => {
+  // remove all photo in _photo[]
   Promise.map(album._photos, photoId => {
     new Promise((resolve, reject) => {
       mongoose.model('Photo').findById(photoId, (error, photo) => {
         if (error) reject(error);
+        // set to false so that photo model doesn't need to run unnecessary clean up
         photo.removeHookEnabled = false;
         photo.remove()
           .then(() => resolve())
