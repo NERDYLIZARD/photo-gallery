@@ -128,7 +128,7 @@ app.post('/albums/create', upload.array('images'), (req, res) => {
     .then(() => createPhotos(req.files, album, albumDirectory))
     .then(() => album.save())
     .then(() => res.status(201).json({
-      message: `successfully created album ${album.name}`,
+      message: `successfully created album: ${album.name}`,
       album
     }))
     .catch(error => res.status(500).json({
@@ -148,7 +148,7 @@ app.post('/albums/:id/add-photos', upload.array('images'), (req, res) => {
     createPhotos(req.files, album, albumDirectory)
       .then(() => album.save())
       .then(() => res.status(200).json({
-        message: `successfully added photos to album ${album.name}`,
+        message: `successfully added photos to album: ${album.name}`,
         album
       }))
       .catch(error => res.status(500).json({
@@ -165,36 +165,32 @@ app.delete('/albums/:id', (req, res) => {
         title: 'An error occurred',
         error
       });
-    album.remove((error, album) => {
-      if (error)
-        return res.status(500).json({
-          title: 'An error occurred',
-          error
-        });
-      res.status(200).json({
-        message: `successfully removed album: ${album._id}`
-      });
-    });
+    album.remove()
+      .then(album => res.status(200).json({
+        message: `successfully removed album: ${album.name}`
+      }))
+      .catch(error => res.status(500).json({
+        title: 'An error occurred',
+        error
+      }));
   });
 });
 
-app.delete('/photos/:id', (req, res) => {
+app.delete('/albums/photos/:id', (req, res) => {
   Photo.findById(req.params.id, (error, photo) => {
     if (error)
       return res.status(500).json({
         title: 'An error occurred',
         error
       });
-    photo.remove((error, photo) => {
-      if (error)
-        return res.status(500).json({
-          title: 'An error occurred',
-          error
-        });
-      res.status(200).json({
+    photo.remove()
+      .then(photo => res.status(200).json({
         message: `successfully removed photo: ${photo._id}`
-      });
-    });
+      }))
+      .catch(error => res.status(500).json({
+        title: 'An error occurred',
+        error
+      }));
   });
 });
 

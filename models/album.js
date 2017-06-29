@@ -8,7 +8,6 @@ const Schema = mongoose.Schema;
 const Promise = require('bluebird');
 
 const config = require('../project.config');
-const Photo = require('./photo');
 
 const schema = new Schema({
   _id : { type: Schema.Types.ObjectId, required: true },
@@ -21,7 +20,7 @@ const schema = new Schema({
 schema.post('remove', (album, next) => {
   Promise.map(album._photos, photoId => {
     new Promise((resolve, reject) => {
-      Photo.findById(photoId, (error, photo) => {
+      mongoose.model('Photo').findById(photoId, (error, photo) => {
         if (error) reject(error);
         photo.removeHookEnabled = false;
         photo.remove()

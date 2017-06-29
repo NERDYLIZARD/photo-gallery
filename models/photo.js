@@ -7,7 +7,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const config = require('../project.config');
-const Album = require('./album');
 
 const schema = new Schema({
   _id : { type: Schema.Types.ObjectId, required: true },
@@ -28,7 +27,7 @@ schema.post('remove', (photo, next) => {
 
 // pull the being deleted photo out of ablum.photos[]
 schema.post('remove', (photo, next) => {
-  Album.findById(photo._album, (error, album) => {
+  mongoose.model('Album').findById(photo._album, (error, album) => {
     if (error) next(error);
     album._photos.pull(photo._id);
     album.save()
