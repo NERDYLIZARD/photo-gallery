@@ -49,13 +49,15 @@ export default class AlbumList extends Component {
     return (
     <div className="row Album">
       {this.state.albums.map(album =>
-      <div className="col-sm-6 col-md-4" key={album._id}>
+      <div className="col-xs-12 col-sm-6 col-md-4" key={album._id}>
         <Link to={`/albums/${album._id}`}>
           <div className="thumbnail">
-            <img src={`/api${album._photos[0].url}?size=500`} alt={album.name}/>
-              <div className="caption">
-                <h3 className="text-center">{album.name}</h3>
-              </div>
+            <img
+              alt={album.name}
+              src={`/api${album._photos[0].url}?size=1024`}/>
+            <div className="caption">
+              <h3 className="text-center">{album.name}</h3>
+            </div>
           </div>
         </Link>
       </div>)}
